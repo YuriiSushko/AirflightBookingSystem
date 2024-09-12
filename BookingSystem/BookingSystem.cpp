@@ -49,13 +49,25 @@ public:
         flights.push_back(flight);
     }
 
+    void check(const string& date, const string& flight_number) {
+        for (const auto& flight : flights) {
+            if (flight.date == date && flight.flight_number == flight_number) {
+                for (const Ticket& ticket : flight.tickets) {
+                    if (!ticket.booked) {
+                        cout << ticket.place << " " << ticket.price << ", ";
+                    }
+                }
+            }
+        }
+    }
 
     void view() const {
         for (const auto& flight : flights) {
             cout << "Flight Date: " << flight.date << endl;
             cout << "Flight Number: " << flight.flight_number << endl;
 
-            for (const auto& ticket : flight.tickets) {
+            for (const Ticket & ticket : flight.tickets)
+            {
                 cout << "  Ticket ID: " << ticket.get_id() << ", "
                     << "Place: " << ticket.get_place() << ", "
                     << "Price: $" << ticket.get_price() << ", "
@@ -149,7 +161,7 @@ int main()
     Parser parser("config.txt", &flight_system);
 
     parser.parse_config();
-    flight_system.view();
+    flight_system.check("11.12.2022", "FQ12");
 
     cout << "Hello World!\n";
     return 0;
