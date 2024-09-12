@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <tuple>
 
 using namespace std;
 
@@ -29,6 +30,14 @@ public:
     string get_place() const { return place; }
     string get_price() const { return price; }
     bool is_booked() const { return booked; }
+
+    void set_booked() {
+        booked = true;
+    }
+
+    void set_free() {
+        booked = false;
+    }
 };
 
 int Ticket::ticket_number = 0;
@@ -42,7 +51,7 @@ private:
         string flight_number;
         vector<Ticket> tickets;
     };
-
+    vector<User> passangers;
     vector<Flight> flights;
 public:
     void add_flight(const Flight& flight) {
@@ -50,7 +59,7 @@ public:
     }
 
     void check(const string& date, const string& flight_number) {
-        for (const auto& flight : flights) {
+        for (const Flight& flight : flights) {
             if (flight.date == date && flight.flight_number == flight_number) {
                 for (const Ticket& ticket : flight.tickets) {
                     if (!ticket.booked) {
@@ -61,23 +70,93 @@ public:
         }
     }
 
-    void view() const {
-        for (const auto& flight : flights) {
-            cout << "Flight Date: " << flight.date << endl;
-            cout << "Flight Number: " << flight.flight_number << endl;
+    void book(const string& date, const string& flight_number, const string& place, const string& username) {
+        for (Flight& flight : flights) {
+            if (flight.date == date && flight.flight_number == flight_number) {
+                for (Ticket& ticket : flight.tickets) {
+                    if (ticket.get_place() == place) {
+                        ticket.set_booked();
+                        User new_user(username);
 
-            for (const Ticket & ticket : flight.tickets)
-            {
-                cout << "  Ticket ID: " << ticket.get_id() << ", "
-                    << "Place: " << ticket.get_place() << ", "
-                    << "Price: $" << ticket.get_price() << ", "
-                    << "Booked: " << (ticket.is_booked() ? "Yes" : "No") << endl;
+                        new_user.add_ticket(flight.date, flight.flight_number, ticket);
+
+                        passangers.push_back(new_user);
+                        cout << "Confirmed with ID: " << ticket.get_id() << endl;
+                    }
+                }
             }
-            cout << endl;
+        }
+    }
+
+    void view_by_user(const string& username) {
+        for (User& passanger : passangers) {
+            if (passanger.get_name() == username) {
+                passanger.view_tickets();
+            }
+        }
+    }
+
+    void view_by_id(const string& ID) {
+        for (const Flight& flight : flights) {
+            const Ticket& first_ticket = flight.tickets.front();
+            string ticket_id = first_ticket.get_id();
+
+            if (ticket_id.find(flight.flight_number) != string::npos && ticket_id != flight.flight_number) {
+                cout << "Flight Date: " << flight.date << endl;
+                cout << "Flight Number: " << flight.flight_number << endl;
+
+                for (const Ticket& ticket : flight.tickets) {
+                    cout << "  Ticket ID: " << ticket.get_id() << ", "
+                        << "Place: " << ticket.get_place() << ", "
+                        << "Price: $" << ticket.get_price() << ", "
+                        << "Booked: " << (ticket.is_booked() ? "Yes" : "No") << endl;
+                }
+                cout << endl;
+            }
         }
     }
 };
 
+
+class User {
+private:
+    string username;
+    vector<tuple<string, string, Ticket>> tickets;
+public:
+    User(const string& username) : username(username) {}
+
+    void add_ticket(const string& date, const string& flight, const Ticket& ticket) {
+        tickets.push_back(make_tuple(date, flight, ticket));
+    }
+
+    void return_ticket(const string& ID) {
+        for (auto& entry : tickets) {
+            Ticket& ticket = get<2>(entry);
+            if (ticket.get_id() == ID) {
+                ticket.set_free();
+                cout << "Confirmed: " << ticket.get_price() << " refund for " << username << endl;
+            }
+        }
+    }
+
+    void view_tickets() {
+        cout << "Tickets for user " << username << ":" << endl;
+
+        for (const auto& entry : tickets) {
+            const string& date = get<0>(entry);
+            const string& flight = get<1>(entry);
+            const Ticket& ticket = get<2>(entry);
+
+            cout << "Date: " << date << ", Flight: " << flight
+                << ", Ticket ID: " << ticket.get_id()
+                << ", Place: " << ticket.get_place()
+                << ", Price: " << ticket.get_price()
+                << ", Booked: " << (ticket.is_booked() ? "Yes" : "No") << endl;
+        }
+    }
+
+    string get_name() const { return username; }
+};
 
 class Parser {
 private:
