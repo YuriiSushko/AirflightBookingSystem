@@ -295,7 +295,7 @@ public:
                 return;
             }
 
-            if (isdigit(parts[1].back())) {  
+            if (isdigit(parts[1].back()) && parts.size() == 2) {
                 if (parts.size() != 2) {
                     cerr << "Usage: view <ticket_id>" << endl;
                     return;
