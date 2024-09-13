@@ -381,6 +381,5 @@ int main()
     Engine engine("config.txt");
     engine.run();
 
-    cout << "Hello World!\n";
     return 0;
 }
