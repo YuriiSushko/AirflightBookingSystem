@@ -290,29 +290,62 @@ public:
         string command = parts[0];
 
         if (command == "view") {
-            if (isdigit(parts[1].back())) {
+            if (parts.size() < 2) {
+                cerr << "Too fiew arguments for 'view' command." << endl;
+                return;
+            }
+
+            if (isdigit(parts[1].back())) {  
+                if (parts.size() != 2) {
+                    cerr << "Usage: view <ticket_id>" << endl;
+                    return;
+                }
                 flight_system->view_by_id(parts[1]);
             }
-            else if (parts[1] == "username") {
+            else if (parts[1] == "username") { 
+                if (parts.size() != 3) {
+                    cerr << "Usage: view username <username>" << endl;
+                    return;
+                }
                 flight_system->view_by_user(parts[2]);
             }
             else if (parts[1] == "flight") {
+                if (parts.size() != 4) {
+                    cerr << "Usage: view flight <date> <flight_number>" << endl;
+                    return;
+                }
                 flight_system->view_by_date_flight(parts[2], parts[3]);
             }
+            else {
+                cerr << "Unknown view command option: " << parts[1] << endl;
+            }
         }
-        else if (command == "check") {
+        else if (command == "check") { 
+            if (parts.size() != 3) {
+                cerr << "Usage: check <date> <flight_number>" << endl;
+                return;
+            }
             flight_system->check(parts[1], parts[2]);
         }
-        else if (command == "book") {
+        else if (command == "book") {  
+            if (parts.size() != 5) {
+                cerr << "Usage: book <date> <flight_number> <place> <username>" << endl;
+                return;
+            }
             flight_system->book(parts[1], parts[2], parts[3], parts[4]);
         }
-        else if (command == "return") {
+        else if (command == "return") { 
+            if (parts.size() != 2) {
+                cerr << "Usage: return <ID>" << endl;
+                return;
+            }
             flight_system->return_ticket(parts[1]);
         }
         else {
             cerr << "Unknown command: " << command << endl;
         }
     }
+
 };
 
 
